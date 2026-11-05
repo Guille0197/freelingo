@@ -152,7 +152,9 @@ export const TARGET_LANGUAGE_CATALOG: TargetLanguage[] = [
 ]
 
 export const SUPPORTED_TARGET_LANGUAGES: TargetLanguage[] =
-  TARGET_LANGUAGE_CATALOG
+  process.env.NEXT_PUBLIC_ENGLISH_ONLY === 'true'
+    ? TARGET_LANGUAGE_CATALOG.filter((language) => language.iso639 === 'en')
+    : TARGET_LANGUAGE_CATALOG
 
 export function getLanguageByCode(code: string): TargetLanguage | undefined {
   const upper = code.toUpperCase()

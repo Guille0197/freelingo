@@ -5,6 +5,14 @@ applyTo: "backend/app/services/{tts_service,stt_service,chat_markdown}.py, backe
 
 # Speech Services
 
+## Personal Dokploy configuration
+
+The personal topology runs no Kokoro/Whisper containers. Both speech providers use OpenAI through the
+existing backend adapters and a separate OPENAI_API_KEY; the OpenRouter key serves text only.
+Mic capture, VAD, transcription and playback remain. Transcription-based repetition feedback is not
+an acoustic pronunciation assessment. Persistent educational audio is not deleted by age; log rotation
+is bounded in Compose and cache maintenance remains an explicit operator action.
+
 ## Purpose
 
 The backend is the only gateway to speech providers. Browser code never calls Kokoro, Whisper, or

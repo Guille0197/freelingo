@@ -468,3 +468,12 @@ Redis supports session rotation, invitations, rate limiting, quotas, and runtime
 - `memories.instructions.md` — tutor memory.
 - `speech-services.instructions.md` and `voice-conversation.instructions.md` — speech features.
 - `api-endpoints.instructions.md` and `database-models.instructions.md` — detailed contracts.
+
+## Personal English deployment
+
+The Dokploy profile keeps public registration closed. `python -m app.create_private_invite` inside
+backend creates a single-use 15-minute Redis invitation only when there are zero users and first-user
+administrator creation is enabled. It does not bypass registration validation or create an account.
+Existing installations use administrator invitations and retain their accounts/session design.
+RegisterRequest and UserUpdateRequest enforce the operator-configured available target languages,
+matching language add/switch validation. Stored histories and language relationships remain unchanged.

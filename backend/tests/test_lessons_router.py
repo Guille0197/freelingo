@@ -1264,7 +1264,33 @@ async def test_answer_pronunciation_llm_fallback_exact_match(client, test_user, 
     assert response.status_code == 200
     data = response.json()
     assert data["score"] == 1.0
-    assert data["feedback"] == "Buena pronunciacion!"
+    assert data["feedback"] == (
+        "La transcripción coincide con la frase; esto no evalúa tu pronunciación."
+    )
+
+
+@pytest.mark.asyncio
+async def test_answer_pronunciation_empty_transcript_is_not_a_match(client, test_user, db_session):
+    user, headers = test_user
+    _, exercise = await _create_lesson_with_exercise(
+        db_session,
+        user.id,
+        exercise_type="pronunciation",
+        question="Listen and repeat:",
+        options=None,
+        correct_answer="Hello world",
+    )
+    with patch(
+        "app.routers.lessons.evaluate_pronunciation",
+        side_effect=LLMUnavailableError("unavailable"),
+    ):
+        response = await client.post(
+            f"/api/lessons/exercises/{exercise.id}/answer",
+            headers=headers,
+            json={"answer": "..."},
+        )
+    assert response.status_code == 200
+    assert response.json()["score"] == 0.0
 
 
 @pytest.mark.asyncio

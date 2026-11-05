@@ -114,9 +114,9 @@ class RegisterRequest(BaseModel):
     @field_validator("target_language")
     @classmethod
     def validate_target_language(cls, v: str) -> str:
-        if v not in SUPPORTED_TARGET_LANGUAGES:
+        if v not in get_available_languages():
             raise ValueError(
-                f"Unsupported target language. Choose from: {SUPPORTED_TARGET_LANGUAGES}"
+                f"Target language not available. Choose from: {get_available_languages()}"
             )
         return v
 
@@ -218,9 +218,9 @@ class UserUpdateRequest(BaseModel):
     @field_validator("target_language")
     @classmethod
     def validate_target_language(cls, v: str | None) -> str | None:
-        if v is not None and v not in SUPPORTED_TARGET_LANGUAGES:
+        if v is not None and v not in get_available_languages():
             raise ValueError(
-                f"Unsupported target language. Choose from: {SUPPORTED_TARGET_LANGUAGES}"
+                f"Target language not available. Choose from: {get_available_languages()}"
             )
         return v
 

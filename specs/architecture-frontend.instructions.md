@@ -549,3 +549,13 @@ Detailed behavior belongs to `platform.instructions.md`, `speech-services.instru
 - `multi-language.instructions.md`: language state and switching.
 - Domain specs: detailed page and interaction behavior.
 - `testing.instructions.md`: frontend validation and mocking conventions.
+
+## Personal deployment configuration
+
+NEXT_PUBLIC_ENGLISH_ONLY=true at build time filters SUPPORTED_TARGET_LANGUAGES to English without
+removing TARGET_LANGUAGE_CATALOG or historical lookups. The backend remains authoritative.
+UI_DEFAULT_LOCALE configures the initial UI locale at runtime: middleware checks a valid existing
+cookie first, then this configured locale, then browser language and English fallback. The server
+translation resolver uses the same configured fallback. Dokploy supplies es; user choices remain.
+Provider keys are never frontend environment variables. Same-origin WebSockets require the proxy
+route to backend; HTTP rewrites alone are insufficient.

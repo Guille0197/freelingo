@@ -492,7 +492,10 @@ Transcribed speech:
 TRANSCRIPTION
 
 The student was asked to repeat the {target_language_name} phrase aloud. The speech was
-transcribed by STT. Evaluate how accurately they pronounced the phrase. Write all feedback in
+transcribed by STT. Evaluate only how closely the transcript matches the target words.
+You have no audio, phonemes, stress or intonation measurements. Never claim to assess actual
+pronunciation or infer specific sound errors. Clearly state that this is transcription-based
+feedback, and offer general practice tips only. Write all feedback in
 {native_language_name}; keep target-language examples unchanged.
 Do not write feedback in {target_language_name} unless {native_language_name} is also
 {target_language_name}.
@@ -500,7 +503,7 @@ Do not write feedback in {target_language_name} unless {native_language_name} is
 Return JSON:
 {{
   "score": 0.85,
-  "feedback": "Concise pronunciation feedback in {native_language_name}.",
+  "feedback": "Concise transcription-based feedback in {native_language_name}.",
   "is_correct": true
 }}
 

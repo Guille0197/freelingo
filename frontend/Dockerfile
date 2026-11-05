@@ -7,6 +7,8 @@ RUN npm ci
 
 FROM node:26.13.0-alpine AS builder
 WORKDIR /app
+ARG NEXT_PUBLIC_ENGLISH_ONLY=false
+ENV NEXT_PUBLIC_ENGLISH_ONLY=$NEXT_PUBLIC_ENGLISH_ONLY
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/ .
 COPY messages/ ./messages/

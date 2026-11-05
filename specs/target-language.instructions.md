@@ -63,7 +63,7 @@ uses script and font metadata for learned-language content independently from UI
 ## Registration and initial selection
 
 `POST /api/auth/register` accepts optional `target_language`, defaults it to `en-GB`, validates it
-against supported codes, and stores it in `users.target_language`. Registration returns an access
+against the operator-enabled supported codes, and stores it in `users.target_language`. Registration returns an access
 token and sets the refresh cookie but does not create `UserLanguage`.
 
 The current frontend registration form does not send target language. Onboarding then:
@@ -138,3 +138,11 @@ resource-owned language contracts are defined in `speech-services.instructions.m
 - `learning-resources.instructions.md` — canonical language datasets.
 - `speech-services.instructions.md` — provider contracts.
 - `prompts.instructions.md` — language overlays and prompt composition.
+
+## Personal English configuration
+
+The Dokploy deployment configures AVAILABLE_TARGET_LANGUAGES to en-GB/en-US. Registration, profile
+target-language edits and language add/switch enforce this subset. The catalog and persisted language
+identities remain intact for historical data; no automatic language conversion or deletion occurs.
+The canonical default remains en-GB. The personal frontend build limits selectable/presented supported
+languages to English with NEXT_PUBLIC_ENGLISH_ONLY while keeping catalog lookups for existing data.

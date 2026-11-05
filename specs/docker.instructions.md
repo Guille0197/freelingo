@@ -5,6 +5,27 @@ applyTo: "docker-compose*.yml, .env.example, .env.dev, backend/Dockerfile, front
 
 # Docker Runtime
 
+## Personal Dokploy topology
+
+`docker-compose.dokploy.yml` builds backend/frontend from this fork and runs only PostgreSQL, Redis,
+backend and frontend. It uses the existing DATA_PATH bind mounts without deleting or converting data.
+Backend lifespan performs committed migrations; the Compose command does not duplicate them.
+Backend uses a builder stage for compiler dependencies; the runtime contains the installed venv.
+Root/backend `.dockerignore` files exclude secrets, local dependencies and build/test artifacts.
+Frontend VAD assets are regenerated from installed dependencies during build.
+
+The personal frontend build sets `NEXT_PUBLIC_ENGLISH_ONLY=true`. Backend languages are en-GB/en-US,
+registration is closed, cookies are secure, and Stripe/freemium trials/email are disabled.
+OpenRouter text and OpenAI speech are configured through `.env.dokploy.example`.
+All services have healthchecks, automatic restart and json-file rotation (three 10 MB files).
+No CPU/RAM limits are imposed without measurements; one backend worker is the initial default.
+
+Manual Traefik labels route HTTPS `/ws/` to backend with higher priority than frontend. HTTP redirects
+to HTTPS. There are no host-published ports. Only frontend/backend join external dokploy-network;
+databases are restricted to internal data network. Keep manual labels separate from Dokploy-generated
+Domains routes and do not enable network isolation rewriting without adapting the topology.
+`docs/dokploy.md` documents operating variables, private bootstrap, data handling and rollback.
+
 ## Production topology
 
 `docker-compose.yml` defines:

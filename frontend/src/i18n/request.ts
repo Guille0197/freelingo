@@ -6,7 +6,11 @@ function resolveLocale(raw: string | undefined): Locale {
   if (raw && (SUPPORTED_LOCALES as readonly string[]).includes(raw)) {
     return raw as Locale
   }
-  return 'en'
+  const configuredLocale = process.env.UI_DEFAULT_LOCALE
+  return configuredLocale &&
+    (SUPPORTED_LOCALES as readonly string[]).includes(configuredLocale)
+    ? (configuredLocale as Locale)
+    : 'en'
 }
 
 export default getRequestConfig(async () => {

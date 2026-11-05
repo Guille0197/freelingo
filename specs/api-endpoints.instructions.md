@@ -12,6 +12,11 @@ Router-root endpoints use their full path to make trailing-slash behavior explic
 its HTTP method, rate limit, and relevant authentication or payload contract. Limit policy is defined
 in `rate-limiting.instructions.md`.
 
+Registration and profile target-language updates validate against AVAILABLE_TARGET_LANGUAGES,
+not only the full supported catalog; unavailable values return 422. The personal Dokploy profile
+enables en-GB/en-US and requires an invitation for registration. The first-user invitation is created
+inside the backend container, not through an unauthenticated bootstrap endpoint.
+
 ---
 
 ## Health — `/health`
