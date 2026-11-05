@@ -520,14 +520,18 @@ async def answer_exercise(
             # Fallback: normalised comparison stripping punctuation
             norm_target = re.sub(r"[^\w\s]", "", exercise.correct_answer).strip().lower()
             norm_answer = re.sub(r"[^\w\s]", "", transcription).strip().lower()
-            is_close = (
+            is_close = bool(norm_answer) and (
                 norm_target == norm_answer
                 or norm_target in norm_answer
                 or norm_answer in norm_target
             )
             exercise.score = 1.0 if is_close else 0.0
             exercise.feedback = (
-                _answer_feedback(current_user.native_language, "good_pronunciation")
+                (
+                    "La transcripción coincide con la frase; esto no evalúa tu pronunciación."
+                    if current_user.native_language == "es"
+                    else "The transcript matches the phrase; this does not assess pronunciation."
+                )
                 if is_close
                 else _answer_feedback(
                     current_user.native_language,

@@ -5,6 +5,16 @@ applyTo: "backend/app/services/prompts/**, backend/app/services/{llm_adapter,les
 
 # Prompt Architecture
 
+## Personal English tutoring
+
+English tutor/conversation builders include developer workplace practice: technical/HR interviews,
+standups, code reviews, architectures and client meetings, including Java, Spring Boot, Node.js,
+NestJS and APIs. These are language exercises, not software implementation requests. Difficulty adapts
+from A2/B1 toward B2/C1 and brief Spanish explanations support English practice.
+The repetition evaluator receives only STT text. It scores transcript alignment and must explicitly
+avoid acoustic pronunciation claims. Voice tutor instructions likewise prohibit inferring accent,
+stress, phonemes or intonation from transcripts. The empty transcript fallback never earns a match.
+
 ## Ownership
 
 Active reusable prompt templates and builders live in `backend/app/services/prompts/`. Services and

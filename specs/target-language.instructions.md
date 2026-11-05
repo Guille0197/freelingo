@@ -138,3 +138,11 @@ resource-owned language contracts are defined in `speech-services.instructions.m
 - `learning-resources.instructions.md` — canonical language datasets.
 - `speech-services.instructions.md` — provider contracts.
 - `prompts.instructions.md` — language overlays and prompt composition.
+
+## Personal English configuration
+
+The Dokploy deployment configures AVAILABLE_TARGET_LANGUAGES to en-GB/en-US. Registration, profile
+target-language edits and language add/switch enforce this subset. The catalog and persisted language
+identities remain intact for historical data; no automatic language conversion or deletion occurs.
+The canonical default remains en-GB. The personal frontend build limits selectable/presented supported
+languages to English with NEXT_PUBLIC_ENGLISH_ONLY while keeping catalog lookups for existing data.

@@ -34,6 +34,14 @@ function detectLocale(req: NextRequest): Locale {
     return cookie as Locale
   }
 
+  const configuredLocale = process.env.UI_DEFAULT_LOCALE
+  if (
+    configuredLocale &&
+    (SUPPORTED_LOCALES as readonly string[]).includes(configuredLocale)
+  ) {
+    return configuredLocale as Locale
+  }
+
   // 2. Parse Accept-Language header with q-weight sorting
   const accept = req.headers.get('accept-language') ?? ''
   const parsed = accept

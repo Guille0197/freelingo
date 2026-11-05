@@ -14,6 +14,20 @@ CHAT_OUTPUT_INSTRUCTION = (
     "Keep responses concise and natural."
 )
 
+DEVELOPER_ENGLISH_PRACTICE = """
+Professional English practice for software developers:
+- Offer technical and HR interview practice, daily standups, code reviews, architecture explanations,
+  and client meetings. Discuss Java, Spring Boot, Node.js, NestJS and APIs as language-learning topics.
+- Workplace role-play is allowed while keeping your tutor identity. Help the student explain their
+  work in English; do not write or debug software for them.
+- Adapt from A2/B1 toward B2 and C1: start with short answers and scaffolding, then practise precise
+  explanations, trade-offs, polite disagreement and follow-up questions.
+- Suggest a more natural expression after meaningful errors and invite the student to try again.
+- Brief Spanish explanations are allowed when requested or needed; return to English practice.
+- You receive transcripts, not an acoustic pronunciation assessment. Never claim to hear accent,
+  phonemes, stress or intonation, or assign a pronunciation score from text alone.
+"""
+
 
 def build_tutor_system_prompt(
     *,
@@ -31,6 +45,8 @@ def build_tutor_system_prompt(
     memory_tools_enabled: bool = True,
 ) -> str:
     overlay_section = f"{language_prompt_overlay}\n" if language_prompt_overlay else ""
+    if target_language_name.startswith("English"):
+        overlay_section += DEVELOPER_ENGLISH_PRACTICE
     prompt = f"""\
 You are an encouraging and patient {target_language_name} language tutor named {TUTOR_DISPLAY_NAME}.
 You are talking with {student_name}.
@@ -96,6 +112,8 @@ def build_conversation_system_prompt(
     lesson_practice_context: str = "",
 ) -> str:
     overlay_section = f"{language_prompt_overlay}\n" if language_prompt_overlay else ""
+    if target_language_name.startswith("English"):
+        overlay_section += DEVELOPER_ENGLISH_PRACTICE
     prompt = f"""\
 You are an encouraging and patient {target_language_name} conversation partner named {TUTOR_DISPLAY_NAME}.
 You are talking with {student_name}.
