@@ -29,6 +29,7 @@ MAX_CONTEXT_TOKENS = {
     "openai": 128000,
     "anthropic": 200000,
     "deepseek": 128000,
+    "openrouter": 32768,
     "ollama": 8192,
 }
 
@@ -636,6 +637,15 @@ class LLMAdapter:
                 api_key=settings.DEEPSEEK_API_KEY,
             )
             self.model = settings.DEEPSEEK_MODEL
+        elif self.provider == "openrouter":
+            if not settings.OPENROUTER_API_KEY or not settings.OPENROUTER_MODEL.strip():
+                raise ValueError("OpenRouter requires OPENROUTER_API_KEY and OPENROUTER_MODEL")
+            self.client = AsyncOpenAI(
+                base_url=settings.OPENROUTER_BASE_URL,
+                api_key=settings.OPENROUTER_API_KEY,
+                max_retries=0,
+            )
+            self.model = settings.OPENROUTER_MODEL.strip()
         elif self.provider == "anthropic":
             self._anthropic = _anthropic.AsyncAnthropic(
                 api_key=settings.ANTHROPIC_API_KEY,
@@ -779,7 +789,7 @@ class LLMAdapter:
                 sdk_max_retries=sdk_max_retries,
             )
 
-        # For Ollama and DeepSeek (OpenAI-compatible Chat Completions):
+        # Ollama, DeepSeek and OpenRouter use OpenAI-compatible Chat Completions.
         # pass stream_options so the final chunk includes token usage.
         # Defensively build kwargs to stay compatible with older SDK versions.
         extra: dict = {}

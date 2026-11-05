@@ -13,7 +13,14 @@ The frontend never calls an external provider directly.
 
 ## LLM adapter
 
-`llm_adapter.py` provides provider-neutral access to Ollama, OpenAI, Anthropic, and DeepSeek.
+`llm_adapter.py` provides provider-neutral access to Ollama, OpenAI, Anthropic, DeepSeek, and OpenRouter.
+
+`LLM_PROVIDER=openrouter` uses the existing Chat Completions, JSON, streaming and tool-continuation
+paths with `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` and `OPENROUTER_BASE_URL` (default
+`https://openrouter.ai/api/v1`). Key and model are required; the model is operator-selected at runtime.
+SDK retries are disabled for this provider because adapter retries already apply. It uses a
+conservative 32768-token fallback context budget; actual model capabilities must be checked separately.
+OpenRouter is not the OpenAI Responses path and its key is not used for OpenAI speech.
 
 OpenAI uses the Responses API for every LLM request; Ollama and DeepSeek use Chat Completions and
 Anthropic uses its native API. The OpenAI model defaults to `gpt-6-luna`. Optional

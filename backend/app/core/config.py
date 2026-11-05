@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     EXERCISE_GENERATION_TIMEOUT_SECONDS: int = Field(default=600, ge=1)
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-6-luna"
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_MODEL: str = ""
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     OPENAI_REASONING_EFFORT: Literal[
         "", "none", "minimal", "low", "medium", "high", "xhigh", "max"
     ] = ""
