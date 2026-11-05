@@ -10,7 +10,9 @@
 - Backend completo: 2350 correctas, 26 omitidas; cobertura 89.24 %, superior al umbral del 70 %.
   La suite completa incluye las pruebas de invitaciones. Las omitidas son variantes PostgreSQL de
   ciclo de analítica, concurrencia de juegos y recompensas; no había PostgreSQL de integración.
-- Frontend: ESLint y TypeScript correctos; 103 archivos y 1436 pruebas correctas con Vitest.
+- Frontend, primera ejecución: ESLint y TypeScript correctos; 103 archivos y 1436 pruebas correctas
+  con Vitest. En la pasada final de pre-push, lint y TypeScript volvieron a pasar, pero Vitest terminó
+  con 1432 pruebas correctas y 4 fallidas en 3 archivos. Por tanto, pre-push no está aprobado.
 - Frontend de producción: compilación Webpack correcta con NEXT_PUBLIC_ENGLISH_ONLY=true y los
   catálogos copiados temporalmente a frontend/messages, como hace el Dockerfile. La copia temporal se
   eliminó después de comprobar que coincidía exactamente con los originales.
@@ -23,6 +25,18 @@ Las pruebas del backend utilizan SQLite y dobles de Redis/proveedores. No repres
 real de PostgreSQL, Redis o servicios externos. Se observaron advertencias de deprecación heredadas.
 
 ## Límites encontrados
+
+La última pasada del frontend falló en estos casos, sin cambios a esos archivos entre ejecuciones:
+
+- assessment-switch.test.tsx: recuperación 503 al límite agotó 5 segundos; recuperación 429 no
+  encontró la pregunta esperada.
+- exercise-context-initialization.test.tsx: señal de primera respuesta en listening agotó 5 segundos.
+- flashcard-sessions.test.tsx: repaso de cinco tarjetas agotó 5 segundos.
+
+La primera ejecución completa pasó. Esto permite sospechar sensibilidad temporal, pero no demuestra
+la causa ni permite considerar los fallos resueltos. Siguiendo la guía pre-push del repositorio, se
+detuvieron las modificaciones de código/pruebas y se solicitó autorización para repetir únicamente
+esos tres archivos o investigar. El PR debe permanecer como borrador hasta aclarar la validación.
 
 El primer build local falló por acceso de red a Google Fonts y por no tener la copia de catálogos que
 normalmente prepara Docker. Después de preparar esa copia, Turbopack no pudo abrir un puerto interno
