@@ -1,5 +1,21 @@
 # FreeLingo
 
+## Uso personal: inglés en Dokploy
+
+Este fork incluye una configuración ligera para aprender inglés con interfaz inicialmente española,
+OpenRouter para texto y voz externa, sin GPU ni modelos locales. Mantiene autenticación, historial,
+planes y progreso. El despliegue consta de frontend, backend, PostgreSQL y Redis, compilados desde el
+fork en el caso de la aplicación.
+
+Usa [`docker-compose.dokploy.yml`](docker-compose.dokploy.yml) y
+[`.env.dokploy.example`](.env.dokploy.example). Sigue la [guía de instalación, variables, recursos,
+actualización y rollback](docs/dokploy.md) antes de desplegar en VM 105. El
+[inventario y decisiones de simplificación](docs/english-dokploy-audit.md) detalla qué se conserva y
+qué se desactiva. No se eliminan datos ni se requieren cambios de Proxmox.
+
+La documentación siguiente describe también las opciones generales heredadas del proyecto original;
+su Compose con GPU no es el recomendado para este despliegue personal.
+
 ![Hosted](https://img.shields.io/badge/hosted%20service-available-green?style=flat-square)
 ![License](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)
 ![Next.js](https://img.shields.io/badge/next.js-16-black?style=flat-square)

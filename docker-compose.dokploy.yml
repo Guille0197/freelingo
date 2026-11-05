@@ -1,0 +1,149 @@
+# Dokploy: Docker Compose mode, repository source, no GPU or host-published ports.
+# HTTPS routes are declared here; do not add duplicate routes in Dokploy Domains.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-freelingo}
+      POSTGRES_USER: ${POSTGRES_USER:-freelingo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - ${DATA_PATH:?Set an absolute persistent DATA_PATH}/postgres:/var/lib/postgresql/data
+    networks: [data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+    command: [sh, -c, 'exec redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes']
+    volumes:
+      - ${DATA_PATH:?Set DATA_PATH}/redis:/data
+    networks: [data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    logging: *logging
+    # FastAPI lifespan applies committed migrations before serving requests.
+    command: [sh, -c, 'exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers "$${UVICORN_WORKERS}"']
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-freelingo}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-freelingo}
+      REDIS_URL: redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD}@redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:?Set a random SECRET_KEY of at least 32 characters}
+      LLM_PROVIDER: openrouter
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?Set OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:?Select an available OpenRouter model}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set the separate OpenAI speech API key}
+      TTS_PROVIDER: openai
+      STT_PROVIDER: openai
+      OPENAI_TTS_MODEL: ${OPENAI_TTS_MODEL:-gpt-4o-mini-tts}
+      OPENAI_TTS_VOICE: ${OPENAI_TTS_VOICE:-nova}
+      OPENAI_TTS_SPEED: ${OPENAI_TTS_SPEED:-1.0}
+      OPENAI_STT_MODEL: ${OPENAI_STT_MODEL:-whisper-1}
+      AVAILABLE_TARGET_LANGUAGES: '["en-GB","en-US"]'
+      ALLOW_REGISTRATION: "false"
+      FIRST_USER_IS_ADMIN: "true"
+      COOKIE_SECURE: "true"
+      CORS_ORIGINS: '["https://${APP_HOST:?Set APP_HOST without scheme or path}"]'
+      APP_BASE_URL: https://${APP_HOST:?Set APP_HOST}
+      STRIPE_ENABLED: "false"
+      FREEMIUM_TRIAL_ENABLED: "false"
+      EMAIL_ENABLED: "false"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-1}
+      AUDIO_STORAGE_PATH: /data/audio
+      EXERCISE_GENERATION_TIMEOUT_SECONDS: ${EXERCISE_GENERATION_TIMEOUT_SECONDS:-600}
+    volumes:
+      - ${DATA_PATH:?Set DATA_PATH}/avatars:/app/avatars
+      - ${DATA_PATH:?Set DATA_PATH}/audio:/data/audio
+      - ${DATA_PATH:?Set DATA_PATH}/tts_previews:/app/tts_previews
+    networks: [data, app, dokploy-network]
+    expose: ["8000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-voice.rule=Host(`${APP_HOST:?Set APP_HOST}`) && PathPrefix(`/ws/`)
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-voice.entrypoints=websecure
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-voice.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-voice.priority=100
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-voice.service=${ROUTER_PREFIX:-freelingo}-voice
+      - traefik.http.services.${ROUTER_PREFIX:-freelingo}-voice.loadbalancer.server.port=8000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_ENGLISH_ONLY: "true"
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      BACKEND_URL: http://backend:8000
+      UI_DEFAULT_LOCALE: es
+    networks: [app, dokploy-network]
+    expose: ["3000"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/login').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-web.rule=Host(`${APP_HOST:?Set APP_HOST}`)
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-web.entrypoints=websecure
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-web.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-web.priority=1
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-web.service=${ROUTER_PREFIX:-freelingo}-web
+      - traefik.http.services.${ROUTER_PREFIX:-freelingo}-web.loadbalancer.server.port=3000
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-redirect.rule=Host(`${APP_HOST:?Set APP_HOST}`)
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-redirect.entrypoints=web
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-redirect.middlewares=${ROUTER_PREFIX:-freelingo}-https
+      - traefik.http.routers.${ROUTER_PREFIX:-freelingo}-redirect.service=${ROUTER_PREFIX:-freelingo}-web
+      - traefik.http.middlewares.${ROUTER_PREFIX:-freelingo}-https.redirectscheme.scheme=https
+
+networks:
+  data:
+    internal: true
+  app:
+  dokploy-network:
+    external: true
