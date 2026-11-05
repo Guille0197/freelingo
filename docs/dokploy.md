@@ -57,8 +57,8 @@ No uses una clave OpenRouter como OPENAI_API_KEY. Las claves se inyectan exclusi
 El modelo OpenRouter se selecciona en ejecución, sin recompilar. Necesita Chat Completions, streaming
 y respuestas JSON fiables; las herramientas son opcionales y el adaptador conserva su fallback.
 Consulta modelos y precios actuales en [OpenRouter](https://openrouter.ai/models); no se presupone que
-un ID DeepSeek o Qwen esté siempre disponible. La ventana de contexto de respaldo del adaptador para
-OpenRouter es conservadora (32768 tokens), no una garantía de capacidad del modelo elegido.
+un ID DeepSeek o Qwen esté siempre disponible. Revisa también su ventana de contexto; esta integración
+no aplica un presupuesto automático de tokens por petición.
 
 Los ejercicios de repetición comparan la transcripción con una frase. No miden fonemas, acento,
 entonación ni pronunciación acústica. Los prompts y el feedback de respaldo declaran esta limitación.

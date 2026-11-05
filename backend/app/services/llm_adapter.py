@@ -29,7 +29,6 @@ MAX_CONTEXT_TOKENS = {
     "openai": 128000,
     "anthropic": 200000,
     "deepseek": 128000,
-    "openrouter": 32768,
     "ollama": 8192,
 }
 

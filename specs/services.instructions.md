@@ -18,8 +18,8 @@ The frontend never calls an external provider directly.
 `LLM_PROVIDER=openrouter` uses the existing Chat Completions, JSON, streaming and tool-continuation
 paths with `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` and `OPENROUTER_BASE_URL` (default
 `https://openrouter.ai/api/v1`). Key and model are required; the model is operator-selected at runtime.
-SDK retries are disabled for this provider because adapter retries already apply. It uses a
-conservative 32768-token fallback context budget; actual model capabilities must be checked separately.
+SDK retries are disabled for this provider because adapter retries already apply. Actual context
+limits and model capabilities must be checked separately; this integration does not impose a token budget.
 OpenRouter is not the OpenAI Responses path and its key is not used for OpenAI speech.
 
 OpenAI uses the Responses API for every LLM request; Ollama and DeepSeek use Chat Completions and
