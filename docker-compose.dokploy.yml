@@ -31,7 +31,7 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
       REDISCLI_AUTH: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
-    command: [sh, -c, 'exec redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes']
+    command: [sh, -c, 'exec redis-server --requirepass "$$REDIS_PASSWORD"']
     volumes:
       - ${DATA_PATH:?Set DATA_PATH}/redis:/data
     networks: [data]

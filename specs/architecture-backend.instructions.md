@@ -121,10 +121,15 @@ helper owns parsing and spoken boundaries. Original chat content remains in stor
 provider adapters continue receiving ordinary text. Direct and transitive parser dependencies are
 pinned in `requirements.txt` and `constraints.txt`.
 
-The LLM adapter uses Responses for OpenAI, Chat Completions for Ollama/DeepSeek, and Anthropic's native
+The LLM adapter uses Responses for OpenAI, Chat Completions for Ollama/DeepSeek/OpenRouter, and Anthropic's native
 API. OpenAI requests use `store=false`; each tool stream owns its native output and replays it only
 into its own continuation. Provider response IDs, reasoning items, and tool payloads are not shared
 through the singleton adapter or added to the persisted conversation transcript.
+
+OpenRouter uses separately configured OPENROUTER_API_KEY, OPENROUTER_MODEL and OPENROUTER_BASE_URL.
+The personal Dokploy profile builds the backend with compiler dependencies isolated in a builder
+stage and retains the committed migration chain. Its first-user invitation CLI creates a short-lived
+Redis invitation rather than bypassing authentication or inserting an account directly.
 
 Listening and Reading retain FastAPI background tasks with independent database/Redis resources.
 `exercise_generation.py` owns their renewable Redis leases, total generation deadline, cancellation,

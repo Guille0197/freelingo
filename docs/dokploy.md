@@ -118,8 +118,9 @@ decisión separada; no borres sus filas manualmente ni cambies sus códigos para
 - Cachés tour y previews: regenerables, pero esta versión no borra automáticamente archivos existentes.
   Revisa tamaño mensualmente en la VM y conserva solo cachés vigentes mediante mantenimiento
   planificado; cualquier limpieza debe excluir audio de lecciones, avatares y bases.
-- Redis usa AOF para conservar sesiones ante reinicios normales. La recuperación de sesiones tras
-  copiar datos o restaurar snapshots no garantiza que todos los tokens sigan siendo válidos.
+- Redis conserva el formato de snapshots RDB existente y guarda al apagarse de forma ordenada. Un
+  apagado abrupto puede perder sesiones recientes; copiar o restaurar snapshots tampoco garantiza
+  que todos los tokens sigan siendo válidos. No se cambia automáticamente a AOF sobre datos existentes.
 - Conserva la versión anterior de las imágenes y su caché de build hasta terminar la aceptación.
   Limpia solo imágenes/cachés identificados y sin uso desde Dokploy. Nunca limpies volúmenes.
 
@@ -131,7 +132,7 @@ Para una sola persona, un worker y sin modelos locales:
 - Backend: aproximadamente 250–800 MB RAM; imagen de unos 300–900 MB.
 - PostgreSQL: aproximadamente 100–400 MB RAM con pocos datos; datos iniciales unos 100–300 MB más
   crecimiento, WAL y espacio temporal de mantenimiento.
-- Redis: aproximadamente 20–100 MB RAM; datos iniciales pequeños, variables según sesiones/cachés/AOF.
+- Redis: aproximadamente 20–100 MB RAM; datos iniciales pequeños, variables según sesiones/cachés/RDB.
 - Total orientativo de servicios: 0.5–1.7 GB en uso ligero; reserva margen para audio y concurrencia.
   No incluye Ubuntu, Dokploy, Traefik ni otros proyectos de la VM.
 - Compilación: picos adicionales de unos 2–5 GB RAM y varios GB de disco. No es el consumo estable.

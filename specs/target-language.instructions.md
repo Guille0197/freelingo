@@ -63,7 +63,7 @@ uses script and font metadata for learned-language content independently from UI
 ## Registration and initial selection
 
 `POST /api/auth/register` accepts optional `target_language`, defaults it to `en-GB`, validates it
-against supported codes, and stores it in `users.target_language`. Registration returns an access
+against the operator-enabled supported codes, and stores it in `users.target_language`. Registration returns an access
 token and sets the refresh cookie but does not create `UserLanguage`.
 
 The current frontend registration form does not send target language. Onboarding then:
